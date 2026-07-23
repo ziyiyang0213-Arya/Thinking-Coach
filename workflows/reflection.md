@@ -264,7 +264,7 @@ Thinking Coach 不要求：
 ## Purpose
 
 
-Reflection 支持同一个 Topic 的多次思考记录。
+Reflection 支持同一个 Conversation 内、同一个 Topic 的多次完整思考记录。
 
 
 版本不是：
@@ -275,6 +275,107 @@ Reflection 支持同一个 Topic 的多次思考记录。
 版本代表：
 
 同一个问题在不同时间点形成的认知记录。
+
+
+---
+
+# Reflection 生命周期（Reflection Lifecycle）
+
+
+Reflection 完成后不会自动结束 Conversation。
+
+
+当前 Topic 内的后续处理只有两种情况。
+
+
+## 1. Topic Completed（结束当前 Topic）
+
+当用户明确表示：
+
+- 当前问题已经完成；
+- 不希望继续探索；
+- 当前思考周期结束。
+
+
+处理：
+
+- 保存当前 Reflection Record；
+- 当前 Topic 结束；
+- 不生成新的 Reflection Version。
+
+
+## 2. Continue Exploring Same Topic（继续探索同一 Topic）
+
+如果用户希望继续探索同一个 Topic：
+
+- 不直接修改当前 Reflection；
+- 不生成 Reflection Supplement；
+- 重新进入完整思考流程。
+
+
+Definition
+
+↓
+
+Argument Building
+
+↓
+
+Argument Refinement
+
+↓
+
+Debate
+
+↓
+
+Closing Statement
+
+↓
+
+Reflection
+
+
+完成后，生成新的 Reflection Version。
+
+
+例如：
+
+Reflection v1
+
+↓
+
+重新思考
+
+↓
+
+Reflection v2
+
+
+---
+
+# Reflection Version 生成规则
+
+
+Reflection Version 不是：
+
+- 用户补充一句话；
+- 修改 Reflection 文案；
+- 增加新的零散信息。
+
+
+只有当用户在同一个 Conversation 内针对同一个 Topic 重新完成完整 Workflow 时，才生成 Reflection v2+。
+
+
+---
+
+# Reflection Record 原则
+
+
+Reflection Record 表示用户在某个时间点完成一次完整思考后的认知状态。
+
+
+它不是持续更新的记录。
 
 
 ---
@@ -328,15 +429,12 @@ Reflection v1。
 ## Trigger（触发条件）
 
 
-当同一个 Topic：
+当同一个 Conversation 内、同一个 Topic：
 
 已经产生 Reflection。
 
 
-未来用户再次讨论同一个 Topic：
-
-并完成新的思考过程后。
-
+用户完成 Reflection 后，再次围绕该 Topic 完成新的完整思考流程：
 
 生成新的 Reflection Version。
 
@@ -353,9 +451,9 @@ Topic A
 Reflection v1
 
 
-之后：
+之后（仍在同一个 Conversation 内）：
 
-Topic A 再次讨论
+Topic A 再次完成完整思考流程
 
 ↓
 
@@ -457,7 +555,14 @@ Reflection 记录属于：
 用于：
 
 - 理解当前讨论；
-- 支持未来 Reflection Version 比较。
+- 支持当前 Conversation 内未来 Reflection Version 的比较。
+
+
+如果发生 Topic Change：
+
+- 进入新的 Conversation；
+- 不读取旧 Conversation 的 Reflection History；
+- 新 Topic 从新的 Reflection v1 开始。
 
 
 Reflection 不是：
@@ -480,12 +585,12 @@ AI 不应自动结束 Conversation。
 AI 应确认用户是否希望：
 
 - 结束当前 Topic；
-- 继续探索相关问题。
+- 继续探索同一 Topic。
 
 
 示例：
 
-“Reflection 已完成。你希望结束这次思考，还是继续探索相关问题？”
+“Reflection 已完成。你希望结束这次思考，还是继续探索同一 Topic？”
 
 
 ---
@@ -504,31 +609,32 @@ AI 应确认用户是否希望：
 当前 Reflection Record。
 
 
+状态：
+
+Topic Completed。
+
+
+不生成新的 Reflection Version。
+
+
 ---
 
 ## 用户选择继续探索
 
 
-根据用户方向判断：
+当前 Reflection 不修改。
 
 
-如果仍然属于当前 Topic：
-
-应用：
-
-rules/viewpoint-change.md
+不生成 Reflection Supplement。
 
 
-如果进入新的 Topic：
-
-应用：
-
-rules/topic-change.md
+在用户确认后，Stage Transition Rule 重新进入 Definition 阶段。
 
 
-阶段变化遵循：
+用户需要重新完成完整 Workflow。
 
-rules/stage-transition.md。
+
+新的完整流程结束后，生成新的 Reflection Version。
 
 
 ---
@@ -580,7 +686,10 @@ rules/topic-change.md。
 
 如果用户只是补充当前 Topic：
 
-继续当前 Reflection。
+不直接修改当前 Reflection。
+
+
+AI 应邀请用户按照 Reflection 生命周期重新进入完整思考流程。
 
 
 ---
@@ -590,12 +699,23 @@ rules/topic-change.md。
 
 当 Reflection Record 完成：
 
-当前 Topic 的一次完整思考流程结束。
+当前 Topic 的一次完整思考周期结束。
 
 
-如果未来继续讨论：
+Reflection Record 保持为当前周期的认知快照。
 
-基于新的讨论生成新的 Reflection Version。
+
+如果用户继续同一个 Topic：
+
+不直接修改当前 Reflection。
+
+
+只有在当前 Conversation 内重新完成完整流程时，才生成新的 Reflection Version。
+
+
+如果发生 Topic Change：
+
+创建新的 Conversation，不生成当前 Conversation 的后续 Reflection Version。
 
 
 ---

@@ -27,6 +27,13 @@ Topic 指当前正在解决的核心问题。
 - 当前 Workflow 状态。
 
 
+Topic Change Rule 负责判断讨论对象是否发生变化。
+
+它不负责判断同一 Topic 内的观点深化或分析角度变化。
+
+同一 Topic 内的变化由 Viewpoint Change Rule 处理。
+
+
 ---
 
 # Switching（切换）
@@ -128,10 +135,24 @@ AI 提醒：
 
 处理：
 
+当前 Topic 的 Conversation 生命周期结束。
+
+
+不继续使用当前 Workflow 状态。
+
+
+不将当前 Topic 的 Memory 和 Reflection 加载到新的 Conversation。
+
+
 开启新的对话框。
 
 
 新的 Topic：
+
+创建新的 Current Topic。
+
+
+初始化新的 Memory。
 
 重新开始：
 

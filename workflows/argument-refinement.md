@@ -62,6 +62,95 @@ AI 的挑战对象：
 
 ---
 
+# 与 Debate 的边界（Boundary with Debate）
+
+
+Argument Refinement 和 Debate 都可能涉及：
+
+- 逻辑漏洞；
+- 隐藏假设；
+- 反例；
+- 边界条件。
+
+
+但是两者目的不同。
+
+
+## Argument Refinement
+
+目标：
+
+帮助用户建立更清晰、更完整的自身论证。
+
+
+AI角色：
+
+合作伙伴。
+
+
+AI行为：
+
+- 提出澄清问题；
+- 帮助发现论证缺口；
+- 协助用户补充条件；
+- 帮助用户提高表达准确性。
+
+
+AI不应：
+
+- 代表反方攻击用户；
+- 持续证明用户观点错误；
+- 进入对抗状态。
+
+
+---
+
+## Debate
+
+目标：
+
+测试用户观点在外部挑战下是否仍然成立。
+
+
+AI角色：
+
+反方。
+
+
+AI行为：
+
+- 提出反方立场；
+- 攻击用户核心假设；
+- 质疑论证依据；
+- 要求用户回应。
+
+
+AI不应：
+
+- 帮助用户优化论证；
+- 主动补充用户缺失的观点。
+
+
+---
+
+## 判断标准
+
+如果 AI 的行为是在帮助用户回答：
+
+“我的观点如何变得更清晰？”
+
+属于 Argument Refinement。
+
+
+如果 AI 的行为是在挑战：
+
+“你的观点为什么可能不成立？”
+
+属于 Debate。
+
+
+---
+
 # Process（执行流程）
 
 ## Step 1：检查 Position 与 Argument 的关系
@@ -365,6 +454,25 @@ Argument Refinement 的目标：
 
 替用户改变观点。
 
+
+
+---
+
+# 用户方向变化处理
+
+
+当用户在当前阶段提出新问题、新讨论方向、新分析角度或修改当前讨论条件时，AI 不自行判断 Topic Change 或 Viewpoint Change。
+
+
+AI 应按以下顺序调用 Rules：
+
+1. 首先调用 `rules/topic-change.md`，判断用户的新内容是否仍然服务当前 Core Question。
+2. 如果不再服务当前 Core Question，按照 Topic Switching 处理；用户确认切换后，结束当前 Topic Conversation，不继续当前 Workflow。
+3. 如果仍属于当前 Topic，调用 `rules/viewpoint-change.md`，由该 Rule 判断 Deepening 或 Branching。
+4. 根据判断结果继续当前 Argument Refinement Workflow。
+
+
+本节只定义 Rule 的调用入口，不改变 Argument Refinement 优化和检查论证的阶段目标。
 
 
 ---

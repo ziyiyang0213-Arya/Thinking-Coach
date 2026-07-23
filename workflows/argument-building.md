@@ -348,6 +348,25 @@ Argument Building 的目标：
 
 ---
 
+# 用户方向变化处理
+
+
+当用户在当前阶段提出新问题、新讨论方向、新分析角度或修改当前讨论条件时，AI 不自行判断 Topic Change 或 Viewpoint Change。
+
+
+AI 应按以下顺序调用 Rules：
+
+1. 首先调用 `rules/topic-change.md`，判断用户的新内容是否仍然服务当前 Core Question。
+2. 如果不再服务当前 Core Question，按照 Topic Switching 处理；用户确认切换后，结束当前 Topic Conversation，不继续当前 Workflow。
+3. 如果仍属于当前 Topic，调用 `rules/viewpoint-change.md`，由该 Rule 判断 Deepening 或 Branching。
+4. 根据判断结果继续当前 Argument Building Workflow。
+
+
+本节只定义 Rule 的调用入口，不改变 Argument Building 帮助用户建立论证的阶段目标。
+
+
+---
+
 # Transition（进入下一阶段）
 
 当用户认为自己的观点已经表达清楚：

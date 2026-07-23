@@ -144,13 +144,84 @@ AI：
 
 在 Definition 阶段，如果用户改变方向：
 
+# Topic Change 与 Viewpoint Change 的判断顺序
+
+
+当用户在讨论过程中提出新的方向、角度或补充问题时，AI 不应直接判断为观点变化。
+
+
+判断顺序如下：
+
+
+## 第一步：Topic Change 判断
+
+首先调用 Topic Change Rule。
+
+判断用户的新内容是否仍然服务当前 Core Question。
+
+
+如果用户的新内容已经改变了讨论对象、核心问题或目标：
+
+判断为 Topic Switching。
+
+
+此时：
+
+按照 Topic Change Rule 进入确认流程。
+
+
+用户确认切换后：
+
+- 当前 Topic 结束；
+- 不继续使用当前 Workflow；
+- 进入新的 Topic。
+
+
+---
+
+## 第二步：Viewpoint Change 判断
+
+如果用户的新内容仍然服务当前 Core Question：
+
+进入 Viewpoint Change 判断。
+
+
 判断属于：
 
-- 深化（Deepening）
-- 分叉（Branching）
-- 切换（Switching）
+### Deepening（深化）
 
-按照 topic-change 规则处理。
+用户仍然讨论同一个问题，但：
+
+- 增加新的条件；
+- 探索更深层原因；
+- 缩小或扩大讨论范围。
+
+
+### Branching（分叉）
+
+用户仍然围绕同一个问题，但：
+
+- 引入新的分析角度；
+- 增加新的影响因素；
+- 从不同维度重新观察问题。
+
+
+---
+
+## 判断原则
+
+Topic Change 决定：
+
+“是否还是同一个问题。”
+
+
+Viewpoint Change 决定：
+
+“同一个问题下，理解方式是否发生变化。”
+
+
+Topic Change 的优先级高于 Viewpoint Change。
+
 
 不要默认开始新的讨论。
 

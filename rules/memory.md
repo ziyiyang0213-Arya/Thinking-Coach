@@ -279,7 +279,10 @@ Possible Values：
 ## 7. Reflection History（反思历史）
 
 
-记录同一个 Topic 的 Reflection 版本。
+记录当前 Conversation 内同一个 Topic 的 Reflection 版本。
+
+
+Reflection Version 只在当前 Conversation 的生命周期内存在。
 
 
 包括：
@@ -302,55 +305,142 @@ Reflection Evolution：
 
 ---
 
-# Memory Update Rules（记忆更新规则）
+# Memory 更新机制（Memory Update Mechanism）
 
 
-Memory 不在每次消息后更新。
+## 基本原则
 
 
-只有以下情况更新：
+Memory 用于保存当前 Conversation 的思考状态。
 
 
-## Topic Defined
+Memory 更新分为：
 
-Definition 完成后：
+1. Current State Update（实时状态更新）
+2. Stage Snapshot Update（阶段快照更新）
 
-保存 Topic Context。
 
-
----
-
-## Position Created
-
-Argument Building 完成后：
-
-保存 Argument Structure。
+两者职责不同。
 
 
 ---
 
-## Viewpoint Changed
+# 1. Current State Update（实时状态更新）
 
-发生：
 
-Deepening
+当用户产生新的有效信息时：
 
-或
+AI 可以更新当前 Conversation Memory。
 
-Branching
 
-时：
+包括：
 
-更新 Viewpoint State。
+- 新的观点；
+- 新的论据；
+- 新的条件；
+- 新的回应；
+- 新的讨论方向。
+
+
+该更新用于支持当前 Workflow 继续运行。
+
+
+实时状态更新不会自动生成新的版本记录。
 
 
 ---
 
-## Reflection Completed
+# 2. Stage Snapshot Update（阶段快照更新）
 
-Reflection 完成后：
 
-保存 Reflection Version。
+当一个 Workflow 阶段完成并确认后：
+
+系统生成阶段快照。
+
+
+固定更新节点包括：
+
+
+## Definition 完成
+
+保存：
+
+- Core Question
+- Scope
+- Discussion Boundary
+
+
+---
+
+## Argument Building 完成
+
+保存：
+
+- User Position
+- Reasoning
+- Supporting Arguments
+
+
+---
+
+## Argument Refinement 完成
+
+保存：
+
+- Refined Argument
+- Clarified Assumptions
+
+
+---
+
+## Debate 完成
+
+保存：
+
+- Major Challenges
+- User Responses
+- Remaining Questions
+
+
+---
+
+## Reflection 完成
+
+保存：
+
+- Reflection Record
+- Reflection Version
+
+
+---
+
+# Memory 与 Reflection 的关系
+
+
+Reflection 是阶段快照中的特殊记录。
+
+
+Reflection Version 不因为普通 Memory 更新而变化。
+
+
+只有在同一个 Conversation 内针对同一个 Topic 重新完成完整 Workflow：
+
+才生成新的 Reflection Version。
+
+
+---
+
+# Memory 更新限制
+
+
+Memory 只服务当前 Conversation。
+
+
+当发生 Topic Switching：
+
+- 当前 Conversation Memory 停止使用；
+- 新 Conversation 创建新的 Memory Context；
+- 不加载旧 Topic Memory。
 
 
 ---
@@ -363,7 +453,7 @@ Memory 属于当前 Conversation。
 
 不同 Conversation：
 
-默认不共享 Memory。
+不共享 Memory，也不共享 Reflection History。
 
 
 如果用户开启新的 Topic：
@@ -372,6 +462,9 @@ Memory 属于当前 Conversation。
 
 
 旧 Topic 的 Reflection 不影响新 Topic。
+
+
+新的 Conversation 从新的 Reflection History 开始。
 
 
 ---
@@ -465,33 +558,6 @@ Memory 的作用：
 理解用户思考过程。
 
 不是评价用户是否正确。
-
-
----
-
-# Memory Update（记忆更新）
-
-
-当用户产生新的信息：
-
-AI 更新当前 Context。
-
-
-例如：
-
-用户深化：
-
-更新理解。
-
-
-用户分叉：
-
-记录新的思考方向。
-
-
-用户修改观点：
-
-更新当前观点。
 
 
 ---

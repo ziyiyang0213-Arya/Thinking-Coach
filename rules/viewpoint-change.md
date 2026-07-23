@@ -30,21 +30,19 @@ Viewpoint Change 只处理：
 
 ↓
 
-判断是否仍然服务当前 Core Question
+先由 Topic Change Rule 判断是否仍然服务当前 Core Question
 
+↓
 
-如果：
+确认仍属于当前 Topic
 
-不再服务当前 Core Question：
+↓
 
-进入 topic-change.md。
+进入 Viewpoint Change
 
+↓
 
-如果：
-
-仍然服务当前 Core Question：
-
-进入 Viewpoint Change。
+判断属于 Deepening 或 Branching。
 
 
 ---

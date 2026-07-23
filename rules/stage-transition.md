@@ -29,7 +29,7 @@ AI 不可以：
 
 - 未经用户确认自动进入下一阶段；
 - 为了完成流程强行推进；
-- 跳过必要阶段。
+- 未经用户明确请求跳过必要阶段。
 
 
 ---
@@ -68,6 +68,263 @@ AI 不应：
 - 随意跳跃；
 - 随意返回；
 - 改变流程顺序。
+
+
+---
+
+# 阶段跳过规则（Stage Skip Rules）
+
+
+## 基本原则
+
+Thinking Coach 默认按照设计好的阶段流程推进：
+
+Definition
+
+↓
+
+Argument Building
+
+↓
+
+Argument Refinement
+
+↓
+
+Debate
+
+↓
+
+Closing Statement
+
+↓
+
+Reflection
+
+
+默认流程用于保证用户能够完成完整的思考过程。
+
+
+但是，用户拥有对流程的最终控制权。
+
+如果用户明确提出跳过某个阶段，AI 不应强制要求用户完成前置阶段。
+
+
+---
+
+## 用户主动跳过阶段
+
+用户可以主动请求跳过任意阶段。
+
+例如：
+
+- “跳过 Refinement，直接开始 Debate。”
+- “我已经想清楚了，不需要 Building。”
+- “直接帮我进行辩论。”
+
+当用户提出跳过请求时，AI 需要检查目标阶段是否满足最低输入要求。
+
+跳过阶段不代表跳过该阶段的数据要求。
+
+如果目标阶段缺少必要信息，AI 应帮助用户补充缺失信息，而不是强制用户返回前置阶段。
+
+
+---
+
+# 阶段最低输入要求（Minimum Input Requirement）
+
+
+## Argument Building
+
+进入条件：
+
+至少存在：
+
+- Core Question（核心问题）
+
+
+---
+
+## Argument Refinement
+
+进入条件：
+
+至少存在：
+
+- 用户当前观点（User Position）
+- 基础论据（Basic Reasoning）
+
+
+---
+
+## Debate
+
+进入条件：
+
+至少存在：
+
+- 用户明确立场（User Position）
+- 支持该立场的核心理由（Reasoning）
+- 至少一个可被挑战的论点（Argument）
+
+
+如果用户没有形成明确观点，AI 不应直接进入 Debate。
+
+
+---
+
+## Closing Statement
+
+进入条件：
+
+至少满足：
+
+- 已完成 Debate；
+
+或者：
+
+- 用户明确表示结束当前讨论，并希望总结自己的观点。
+
+
+---
+
+## Reflection
+
+进入条件：
+
+至少存在：
+
+- 用户初始观点（Original Thinking）
+- 用户当前观点（Current Thinking）
+
+
+Reflection 不负责生成新的观点，只记录用户已经表达的认知状态。
+
+
+---
+
+# 阶段状态管理权责（Stage Authority）
+
+
+Stage Transition Rule 是唯一负责改变阶段状态的规则。
+
+
+Workflow 可以定义：
+
+- 当前阶段目标；
+- 阶段内行为；
+- 阶段完成标准；
+- 用户确认方式。
+
+
+但是 Workflow 不负责直接决定阶段切换。
+
+
+所有阶段进入、退出、跳过和回退，都必须经过 Stage Transition Rule 判断。
+
+
+---
+
+# Rules 与 Workflow 的职责边界（Rule vs Workflow Responsibility）
+
+
+## Rules 的职责
+
+Rules 负责系统级判断和状态管理。
+
+包括：
+
+- 判断是否发生 Topic Change；
+- 判断是否发生 Viewpoint Change；
+- 判断是否允许阶段转换；
+- 判断是否需要更新 Memory；
+- 判断是否满足进入下一阶段的条件。
+
+
+Rules 回答的问题：
+
+“系统现在应该发生什么？”
+
+
+Rules 不负责：
+
+- 阶段内具体对话方式；
+- AI角色表现；
+- 阶段内容生成；
+- 用户引导话术。
+
+
+---
+
+## Workflow 的职责
+
+Workflow 负责单个阶段内部的执行过程。
+
+包括：
+
+- 阶段目标；
+- AI在该阶段中的角色；
+- 对用户的引导方式；
+- 阶段内输出结构；
+- 阶段完成标准。
+
+
+Workflow 回答的问题：
+
+“进入这个阶段以后，AI应该如何工作？”
+
+
+Workflow 不负责：
+
+- 修改当前阶段状态；
+- 自行决定进入下一阶段；
+- 绕过 Stage Transition Rule。
+
+
+---
+
+## Transition 信息的归属
+
+
+Workflow 可以描述：
+
+- 本阶段目标；
+- 本阶段完成条件；
+- 推荐确认话术。
+
+
+Stage Transition Rule 负责最终判断：
+
+- 是否允许离开当前阶段；
+- 是否进入目标阶段；
+- 是否允许跳过或回退。
+
+
+当 Workflow 与 Rule 存在冲突时：
+
+以 Rule 为准。
+
+
+---
+
+# 用户确认原则（User Confirmation）
+
+
+除非用户明确授权，否则 AI 不应自动推进到下一阶段。
+
+
+当一个阶段完成后：
+
+AI 应：
+
+1. 告知当前阶段已经完成；
+2. 说明下一阶段目标；
+3. 询问用户是否进入下一阶段。
+
+
+用户确认后：
+
+才进入下一阶段。
 
 
 ---
@@ -177,6 +434,52 @@ AI 可以邀请用户进行 Reflection。
 
 ---
 
+# Reflection 后的状态处理
+
+
+Reflection 完成后，系统不自动进入下一阶段。
+
+
+根据用户意图处理。
+
+
+## 用户结束当前 Topic
+
+状态：
+
+Topic Completed。
+
+
+保存当前 Reflection。
+
+
+Conversation 可以结束。
+
+
+不生成新的 Reflection Version。
+
+
+---
+
+## 用户希望在当前 Conversation 内继续探索同一 Topic
+
+当前 Reflection 不修改。
+
+
+系统在用户确认后重新进入 Definition 阶段。
+
+
+用户需要重新完成完整 Workflow。
+
+
+新的完整流程结束后，生成新的 Reflection Version。
+
+
+Reflection → Definition 表示开始新的完整思考周期，不属于 Stage Rollback。
+
+
+---
+
 # Stage Rollback（阶段回退）
 
 ## Core Principle（核心原则）
@@ -270,42 +573,6 @@ Closing → Debate
 原因：
 
 这些会导致流程无限循环，增加系统复杂度。
-
-
----
-
-# Stage Jump（阶段跳跃）
-
-用户可以主动要求跳过阶段。
-
-例如：
-
-用户：
-
-“直接开始辩论。”
-
-AI 应判断：
-
-当前是否具备必要信息。
-
-
-如果缺少：
-
-说明缺失内容。
-
-
-例如：
-
-“目前还没有形成明确观点，需要先完成 Argument Building。”
-
-
-如果用户坚持：
-
-可以允许跳过。
-
-但需要说明：
-
-跳过可能降低后续讨论质量。
 
 
 ---

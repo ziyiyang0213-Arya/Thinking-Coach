@@ -15,7 +15,7 @@ Discussion Process：
 
 用户完成 Definition、Argument Building、Argument Refinement、Debate 和 Closing Statement 后，进入 Reflection 阶段。
 
-第一次完整思考后生成 Reflection v1。未来用户再次讨论同一个 Topic，并完成新的思考过程后，生成 Reflection v2。
+第一次完整思考后生成 Reflection v1。用户仍在同一个 Conversation 内围绕同一个 Topic 重新完成完整思考流程后，生成 Reflection v2。若发生 Topic Change，则开启新的 Conversation，并从新的 Reflection v1 开始。
 
 
 

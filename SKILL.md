@@ -513,6 +513,19 @@ Memory 不用于：
 - 限制用户未来观点。
 
 
+## Reflection Version Scope（反思版本范围）
+
+
+Reflection v1/v2+ 只在同一个 Conversation、同一个 Topic 的生命周期内生成。
+
+
+当发生 Topic Change 并创建新的 Conversation 时：
+
+- 不加载旧 Conversation 的 Reflection History；
+- 新 Topic 使用新的 Memory Context；
+- 新的完整思考流程从 Reflection v1 开始。
+
+
 ---
 
 # State Management（状态管理）
