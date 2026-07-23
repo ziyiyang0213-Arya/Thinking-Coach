@@ -1,4 +1,4 @@
 from .base import LLMClient
-from .fake import FakeLLMClient
+from .fake import FakeLLMClient, ScriptedFakeLLMClient
 
-__all__ = ["FakeLLMClient", "LLMClient"]
+__all__ = ["FakeLLMClient", "LLMClient", "ScriptedFakeLLMClient"]

@@ -20,8 +20,14 @@ class StateManager:
 
     def confirm_pending(self, state: WorkflowState) -> WorkflowState:
         action = state.pending_action
-        if action is None or action.target_stage is None:
+        if action is None:
             raise ValueError("No confirmable state action exists.")
+        if action.action == "complete_reflection":
+            updated = state.model_copy(update={"stage_status": StageStatus.COMPLETED, "pending_action": None})
+            self.repository.save_workflow_state(updated, "reflection_completed", {"stage": state.current_stage.value})
+            return updated
+        if action.target_stage is None:
+            raise ValueError("Pending action has no target stage.")
         updated = state.model_copy(
             update={"current_stage": action.target_stage, "stage_status": StageStatus.ACTIVE, "pending_action": None}
         )

@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterator
 
-from thinking_coach.models import Conversation, ConversationStatus, Message, WorkflowState
+from thinking_coach.models import Conversation, ConversationStatus, Message, ReflectionRecord, WorkflowState
 
 
 def _timestamp(value: datetime) -> str:
@@ -181,6 +181,45 @@ class SQLiteRepository:
             return connection.execute(
                 "SELECT * FROM state_events WHERE conversation_id = ? ORDER BY created_at", (conversation_id,)
             ).fetchall()
+
+    def create_stage_snapshot(
+        self, snapshot_id: str, conversation_id: str, stage: str, cycle_number: int, data: dict[str, object], created_at: datetime
+    ) -> None:
+        with self.transaction() as connection:
+            connection.execute(
+                "INSERT INTO stage_snapshots VALUES (?, ?, ?, ?, ?, ?)",
+                (snapshot_id, conversation_id, stage, cycle_number, json.dumps(data), _timestamp(created_at)),
+            )
+
+    def list_stage_snapshots(self, conversation_id: str) -> list[sqlite3.Row]:
+        with self.transaction() as connection:
+            return connection.execute(
+                "SELECT * FROM stage_snapshots WHERE conversation_id = ? ORDER BY created_at", (conversation_id,)
+            ).fetchall()
+
+    def create_reflection(self, record: ReflectionRecord) -> None:
+        with self.transaction() as connection:
+            connection.execute(
+                "INSERT INTO reflections VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    record.id, record.conversation_id, record.version, record.cycle_number,
+                    json.dumps(record.data), _timestamp(record.created_at),
+                ),
+            )
+
+    def list_reflections(self, conversation_id: str) -> list[ReflectionRecord]:
+        with self.transaction() as connection:
+            rows = connection.execute(
+                "SELECT * FROM reflections WHERE conversation_id = ? ORDER BY version", (conversation_id,)
+            ).fetchall()
+        return [
+            ReflectionRecord(
+                id=row["id"], conversation_id=row["conversation_id"], version=row["version"],
+                cycle_number=row["cycle_number"], data=json.loads(row["data_json"]),
+                created_at=datetime.fromisoformat(row["created_at"]),
+            )
+            for row in rows
+        ]
 
     def append_message(self, message: Message) -> None:
         with self.transaction() as connection:

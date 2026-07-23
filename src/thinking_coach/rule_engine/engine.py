@@ -37,6 +37,11 @@ class RuleEngine:
         action = "advance"
         if command == "/advance":
             target = next_stage(state.current_stage)
+        elif command == "/complete" and state.current_stage is Stage.REFLECTION:
+            return RuleDecision(
+                rule="stage_transition", action="complete_reflection", reason="Request to finalize the current Reflection.",
+                requires_confirmation=True,
+            )
         elif command == "/rollback":
             target = Stage.REFINEMENT
             action = "rollback"

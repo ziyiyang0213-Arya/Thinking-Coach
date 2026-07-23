@@ -85,3 +85,12 @@ class TurnResult(BaseModel):
     assistant_message: str
     current_stage: Stage
     pending_action: PendingAction | None = None
+
+
+class ReflectionRecord(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    conversation_id: str
+    version: int
+    cycle_number: int
+    data: dict[str, Any]
+    created_at: datetime = Field(default_factory=utc_now)

@@ -4,6 +4,7 @@ from thinking_coach.llm import LLMClient
 from thinking_coach.models import Message, PendingAction, TurnResult
 from thinking_coach.persistence import SQLiteRepository
 from thinking_coach.rule_engine import RuleEngine
+from thinking_coach.memory import MemoryManager
 from thinking_coach.state import StateManager
 from thinking_coach.workflow_engine import WorkflowRegistry
 
@@ -15,6 +16,7 @@ class RuntimeController:
         self.rule_engine = RuleEngine()
         self.state_manager = StateManager(repository)
         self.workflows = WorkflowRegistry()
+        self.memory_manager = MemoryManager(repository)
 
     def create_conversation(self) -> str:
         return self.repository.create_conversation().id
@@ -45,12 +47,18 @@ class RuntimeController:
 
         handler = self.workflows.get(workflow_state.current_stage)
         output = self.llm_client.generate(handler.build_context(memory) + f"; user_input={user_input}")
+        self.memory_manager.apply_current_state(conversation_id, output)
         return self._respond(conversation_id, workflow_state, output.assistant_message)
 
     def _resolve_pending(self, conversation_id: str, workflow_state, user_input: str) -> TurnResult:
         answer = user_input.strip().lower()
         if answer in {"yes", "y", "确认", "是"}:
+            pending_action = workflow_state.pending_action
+            self.memory_manager.snapshot_stage(workflow_state)
             updated = self.state_manager.confirm_pending(workflow_state)
+            if pending_action and pending_action.action == "complete_reflection":
+                record = self.memory_manager.finalize_reflection(updated)
+                return self._respond(conversation_id, updated, f"Reflection v{record.version} saved.")
             return self._respond(conversation_id, updated, f"Entered {updated.current_stage.value}.")
         if answer in {"no", "n", "取消", "否"}:
             updated = self.state_manager.clear_pending(workflow_state)
