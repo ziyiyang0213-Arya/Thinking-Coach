@@ -33,6 +33,23 @@ class ConversationStatus(StrEnum):
     CLOSED = "closed"
 
 
+class PendingAction(BaseModel):
+    action: str
+    target_stage: Stage | None = None
+    reason: str
+    required_inputs: list[str] = Field(default_factory=list)
+
+
+class RuleDecision(BaseModel):
+    rule: str
+    action: str = "none"
+    reason: str = "No state change requested."
+    requires_confirmation: bool = False
+    required_inputs: list[str] = Field(default_factory=list)
+    memory_effects: list[str] = Field(default_factory=list)
+    target_stage: Stage | None = None
+
+
 class Conversation(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
     status: ConversationStatus = ConversationStatus.ACTIVE
@@ -44,7 +61,7 @@ class WorkflowState(BaseModel):
     conversation_id: str
     current_stage: Stage = Stage.DEFINITION
     stage_status: StageStatus = StageStatus.ACTIVE
-    pending_action: dict[str, Any] | None = None
+    pending_action: PendingAction | None = None
     cycle_number: int = 1
 
 
@@ -67,4 +84,4 @@ class TurnResult(BaseModel):
     conversation_id: str
     assistant_message: str
     current_stage: Stage
-    pending_action: dict[str, Any] | None = None
+    pending_action: PendingAction | None = None

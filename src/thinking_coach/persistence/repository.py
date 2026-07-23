@@ -138,6 +138,50 @@ class SQLiteRepository:
             cycle_number=row["cycle_number"],
         )
 
+    def save_workflow_state(self, state: WorkflowState, event_type: str, payload: dict[str, object]) -> None:
+        from uuid import uuid4
+        from thinking_coach.models.core import utc_now
+
+        with self.transaction() as connection:
+            connection.execute(
+                """UPDATE workflow_states
+                SET current_stage = ?, stage_status = ?, pending_action_json = ?, cycle_number = ?
+                WHERE conversation_id = ?""",
+                (
+                    state.current_stage.value,
+                    state.stage_status.value,
+                    json.dumps(state.pending_action.model_dump(mode="json")) if state.pending_action else None,
+                    state.cycle_number,
+                    state.conversation_id,
+                ),
+            )
+            connection.execute(
+                "INSERT INTO state_events VALUES (?, ?, ?, ?, ?)",
+                (str(uuid4()), state.conversation_id, event_type, json.dumps(payload), _timestamp(utc_now())),
+            )
+
+    def get_memory_state(self, conversation_id: str) -> dict[str, object]:
+        with self.transaction() as connection:
+            row = connection.execute(
+                "SELECT state_json FROM memory_states WHERE conversation_id = ?", (conversation_id,)
+            ).fetchone()
+        if row is None:
+            raise KeyError(f"Memory state not found: {conversation_id}")
+        return json.loads(row["state_json"])
+
+    def save_memory_state(self, conversation_id: str, state: dict[str, object]) -> None:
+        with self.transaction() as connection:
+            connection.execute(
+                "UPDATE memory_states SET state_json = ? WHERE conversation_id = ?",
+                (json.dumps(state), conversation_id),
+            )
+
+    def list_state_events(self, conversation_id: str) -> list[sqlite3.Row]:
+        with self.transaction() as connection:
+            return connection.execute(
+                "SELECT * FROM state_events WHERE conversation_id = ? ORDER BY created_at", (conversation_id,)
+            ).fetchall()
+
     def append_message(self, message: Message) -> None:
         with self.transaction() as connection:
             connection.execute(
