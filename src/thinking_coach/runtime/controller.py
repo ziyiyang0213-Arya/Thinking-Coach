@@ -39,11 +39,15 @@ class RuntimeController:
                 target_stage=decision.target_stage,
                 reason=decision.reason,
                 required_inputs=decision.required_inputs,
+                data=decision.data,
             )
             updated = self.state_manager.set_pending(workflow_state, pending)
             return self._respond(
                 conversation_id, updated, f"{decision.reason} Do you want to continue?"
             )
+
+        if decision.action == "deepening":
+            self.memory_manager.record_viewpoint_change(conversation_id, "deepening")
 
         handler = self.workflows.get(workflow_state.current_stage)
         output = self.llm_client.generate(handler.build_context(memory) + f"; user_input={user_input}")
@@ -54,10 +58,20 @@ class RuntimeController:
         answer = user_input.strip().lower()
         if answer in {"yes", "y", "确认", "是"}:
             pending_action = workflow_state.pending_action
+            if pending_action and pending_action.action == "topic_switch":
+                core_question = str(pending_action.data["core_question"])
+                new_state = self.state_manager.confirm_topic_switch(workflow_state, core_question)
+                return self._respond(
+                    new_state.conversation_id, new_state, f"Started a new Conversation for: {core_question}"
+                )
+            if pending_action and pending_action.action == "branching":
+                self.memory_manager.record_branch(conversation_id, str(pending_action.data["description"]))
             self.memory_manager.snapshot_stage(workflow_state)
             updated = self.state_manager.confirm_pending(workflow_state)
-            if pending_action and pending_action.action == "complete_reflection":
-                record = self.memory_manager.finalize_reflection(updated)
+            if pending_action and pending_action.action in {"complete_topic", "restart_cycle"}:
+                record = self.memory_manager.finalize_reflection(workflow_state)
+                if pending_action.action == "restart_cycle":
+                    return self._respond(conversation_id, updated, f"Reflection v{record.version} saved. Started cycle {updated.cycle_number}.")
                 return self._respond(conversation_id, updated, f"Reflection v{record.version} saved.")
             return self._respond(conversation_id, updated, f"Entered {updated.current_stage.value}.")
         if answer in {"no", "n", "取消", "否"}:

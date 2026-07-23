@@ -95,7 +95,7 @@ class SQLiteRepository:
                 """
             )
 
-    def create_conversation(self) -> Conversation:
+    def create_conversation(self, core_question: str | None = None) -> Conversation:
         conversation = Conversation()
         workflow_state = WorkflowState(conversation_id=conversation.id)
         with self.transaction() as connection:
@@ -110,7 +110,33 @@ class SQLiteRepository:
             connection.execute(
                 "INSERT INTO memory_states VALUES (?, ?)", (conversation.id, json.dumps({})),
             )
+            if core_question:
+                from uuid import uuid4
+                connection.execute(
+                    "INSERT INTO topics VALUES (?, ?, ?, ?, ?, ?)",
+                    (str(uuid4()), conversation.id, core_question, None, None, "active"),
+                )
         return conversation
+
+    def update_conversation_status(self, conversation_id: str, status: ConversationStatus) -> None:
+        from thinking_coach.models.core import utc_now
+        with self.transaction() as connection:
+            connection.execute(
+                "UPDATE conversations SET status = ?, closed_at = ? WHERE id = ?",
+                (status.value, _timestamp(utc_now()) if status is not ConversationStatus.ACTIVE else None, conversation_id),
+            )
+
+    def upsert_topic(self, conversation_id: str, core_question: str) -> None:
+        from uuid import uuid4
+        with self.transaction() as connection:
+            row = connection.execute("SELECT id FROM topics WHERE conversation_id = ?", (conversation_id,)).fetchone()
+            if row:
+                connection.execute("UPDATE topics SET core_question = ? WHERE conversation_id = ?", (core_question, conversation_id))
+            else:
+                connection.execute(
+                    "INSERT INTO topics VALUES (?, ?, ?, ?, ?, ?)",
+                    (str(uuid4()), conversation_id, core_question, None, None, "active"),
+                )
 
     def get_conversation(self, conversation_id: str) -> Conversation:
         with self.transaction() as connection:

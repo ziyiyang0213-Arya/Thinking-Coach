@@ -38,6 +38,7 @@ class PendingAction(BaseModel):
     target_stage: Stage | None = None
     reason: str
     required_inputs: list[str] = Field(default_factory=list)
+    data: dict[str, Any] = Field(default_factory=dict)
 
 
 class RuleDecision(BaseModel):
@@ -48,6 +49,7 @@ class RuleDecision(BaseModel):
     required_inputs: list[str] = Field(default_factory=list)
     memory_effects: list[str] = Field(default_factory=list)
     target_stage: Stage | None = None
+    data: dict[str, Any] = Field(default_factory=dict)
 
 
 class Conversation(BaseModel):

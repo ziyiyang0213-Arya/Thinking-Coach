@@ -24,7 +24,24 @@ class MemoryManager:
             if key in self.FACT_KEYS and "value" in fact:
                 memory[str(key)] = fact["value"]
         self.repository.save_memory_state(conversation_id, memory)
+        core_question = memory.get("core_question")
+        if isinstance(core_question, str) and core_question:
+            self.repository.upsert_topic(conversation_id, core_question)
         return memory
+
+    def record_branch(self, conversation_id: str, description: str) -> None:
+        memory = self.repository.get_memory_state(conversation_id)
+        branches = list(memory.get("branches", []))
+        branches.append({"description": description, "status": "parked"})
+        memory["branches"] = branches
+        self.repository.save_memory_state(conversation_id, memory)
+
+    def record_viewpoint_change(self, conversation_id: str, change_type: str) -> None:
+        memory = self.repository.get_memory_state(conversation_id)
+        changes = list(memory.get("viewpoint_changes", []))
+        changes.append(change_type)
+        memory["viewpoint_changes"] = changes
+        self.repository.save_memory_state(conversation_id, memory)
 
     def snapshot_stage(self, workflow_state: WorkflowState) -> None:
         data = self.repository.get_memory_state(workflow_state.conversation_id)

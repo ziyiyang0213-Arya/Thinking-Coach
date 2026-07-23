@@ -21,13 +21,41 @@ class RuleEngine:
     def evaluate(
         self, workflow_state: WorkflowState, memory: dict[str, object], user_input: str
     ) -> PipelineResult:
+        topic = self._topic_change(user_input)
+        viewpoint = self._viewpoint_change(user_input) if topic.action == "none" else RuleDecision(rule="viewpoint_change")
         decisions = [
-            RuleDecision(rule="topic_change"),
-            RuleDecision(rule="viewpoint_change"),
+            topic,
+            viewpoint,
             self._stage_transition(workflow_state, memory, user_input),
             RuleDecision(rule="memory_update", memory_effects=["current_state_candidate"]),
         ]
         return PipelineResult(decisions)
+
+    def _topic_change(self, user_input: str) -> RuleDecision:
+        command = user_input.strip()
+        if command.lower().startswith("/topic "):
+            core_question = command[7:].strip()
+            if not core_question:
+                return RuleDecision(rule="topic_change", action="deny", reason="A new Core Question is required.")
+            return RuleDecision(
+                rule="topic_change", action="topic_switch", reason="Requested a new Core Question.",
+                requires_confirmation=True, memory_effects=["new_conversation_memory"], data={"core_question": core_question},
+            )
+        return RuleDecision(rule="topic_change")
+
+    def _viewpoint_change(self, user_input: str) -> RuleDecision:
+        command = user_input.strip()
+        if command.lower() == "/deepen":
+            return RuleDecision(rule="viewpoint_change", action="deepening", reason="Requested deeper analysis within the current Core Question.")
+        if command.lower().startswith("/branch "):
+            description = command[8:].strip()
+            if not description:
+                return RuleDecision(rule="viewpoint_change", action="deny", reason="A branch description is required.")
+            return RuleDecision(
+                rule="viewpoint_change", action="branching", reason="Requested a new analysis branch.",
+                requires_confirmation=True, data={"description": description}, memory_effects=["parked_branch"],
+            )
+        return RuleDecision(rule="viewpoint_change")
 
     def _stage_transition(
         self, state: WorkflowState, memory: dict[str, object], user_input: str
@@ -39,7 +67,12 @@ class RuleEngine:
             target = next_stage(state.current_stage)
         elif command == "/complete" and state.current_stage is Stage.REFLECTION:
             return RuleDecision(
-                rule="stage_transition", action="complete_reflection", reason="Request to finalize the current Reflection.",
+                rule="stage_transition", action="complete_topic", reason="Request to finalize the current Reflection and Topic.",
+                requires_confirmation=True,
+            )
+        elif command == "/restart" and state.current_stage is Stage.REFLECTION:
+            return RuleDecision(
+                rule="stage_transition", action="restart_cycle", reason="Request to begin a new complete cycle for this Topic.",
                 requires_confirmation=True,
             )
         elif command == "/rollback":
