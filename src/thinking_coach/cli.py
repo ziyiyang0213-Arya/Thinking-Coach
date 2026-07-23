@@ -38,3 +38,7 @@ def main() -> None:
     result = controller.handle_turn(args.conversation_id, args.message)
     print(result.assistant_message)
     print(f"stage={result.current_stage}")
+
+
+if __name__ == "__main__":
+    main()

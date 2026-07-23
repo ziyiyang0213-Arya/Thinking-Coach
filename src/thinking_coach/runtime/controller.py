@@ -1,6 +1,6 @@
 """Runtime controller owns the persistence boundary and never delegates state commits to an LLM."""
 
-from thinking_coach.llm import LLMClient
+from thinking_coach.llm import LLMClient, OutputValidator
 from thinking_coach.models import Message, PendingAction, TurnResult
 from thinking_coach.persistence import SQLiteRepository
 from thinking_coach.rule_engine import RuleEngine
@@ -17,6 +17,7 @@ class RuntimeController:
         self.state_manager = StateManager(repository)
         self.workflows = WorkflowRegistry()
         self.memory_manager = MemoryManager(repository)
+        self.output_validator = OutputValidator()
 
     def create_conversation(self) -> str:
         return self.repository.create_conversation().id
@@ -50,7 +51,15 @@ class RuntimeController:
             self.memory_manager.record_viewpoint_change(conversation_id, "deepening")
 
         handler = self.workflows.get(workflow_state.current_stage)
-        output = self.llm_client.generate(handler.build_context(memory) + f"; user_input={user_input}")
+        try:
+            output = self.output_validator.validate(
+                self.llm_client.generate(handler.build_context(memory) + f"; user_input={user_input}"),
+                workflow_state.current_stage,
+            )
+        except (TypeError, ValueError) as error:
+            return self._respond(
+                conversation_id, workflow_state, f"Model output was rejected by runtime validation: {error}"
+            )
         self.memory_manager.apply_current_state(conversation_id, output)
         return self._respond(conversation_id, workflow_state, output.assistant_message)
 
