@@ -312,6 +312,41 @@ AI 可以整理：
 
 
 ---
+# Completion Criteria（完成条件）
+
+
+Argument Building 阶段完成的标准：
+
+
+用户已经形成一个相对清晰的初步观点。
+
+
+至少包括：
+
+- Core Position（核心立场）；
+- Supporting Arguments（支持论点）；
+- Reasoning（论证理由）。
+
+
+AI 不要求：
+
+- 观点已经完全正确；
+- 所有反方问题已经解决；
+- 论证已经经过压力测试。
+
+
+Argument Building 的目标：
+
+建立一个可被讨论和优化的观点结构。
+
+
+而不是：
+
+提前完成 Argument Refinement 或 Debate。
+
+
+
+---
 
 # Transition（进入下一阶段）
 

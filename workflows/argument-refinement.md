@@ -331,6 +331,43 @@ AI整理：
 
 
 ---
+# Completion Criteria（完成条件）
+
+
+Argument Refinement 阶段完成的标准：
+
+
+用户的观点已经经过结构化优化，具备进入 Debate 的基础。
+
+
+至少满足：
+
+- Core Position 已明确；
+- 主要 Arguments 已清晰；
+- 关键 Reasoning 已展开；
+- 主要 Assumptions 已被识别；
+- 论证中的主要漏洞已经被讨论。
+
+
+AI 不要求：
+
+- 用户观点已经无可反驳；
+- 用户已经接受所有修改；
+- 观点一定发生变化。
+
+
+Argument Refinement 的目标：
+
+提升观点的清晰度和完整性。
+
+
+而不是：
+
+替用户改变观点。
+
+
+
+---
 
 # Transition（进入下一阶段）
 
@@ -346,6 +383,11 @@ AI 可以建议进入 Debate。
 
 “是否进入 Debate 阶段？”
 
+阶段转换是否执行：遵循：rules/stage-transition.md。
+
+AI 不应：在 Refinement 阶段提前进入完整辩论。
+
+如果用户的观点仍然不清晰：继续停留在 Argument Refinement 阶段。
 
 ---
 

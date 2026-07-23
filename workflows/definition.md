@@ -176,6 +176,68 @@ AI不要自动进入 Argument Building。
 
 
 ---
+# Completion Criteria（完成条件）
+
+
+Definition 阶段完成的标准：
+
+
+用户已经明确：
+
+- 当前讨论的 Topic；
+- 需要解决的 Core Question；
+- 讨论范围 Scope；
+- 判断问题的基本标准。
+
+
+AI 不要求：
+
+- 用户已经形成观点；
+- 得出结论；
+- 完成论证。
+
+
+Definition 的目标是：
+
+明确“讨论什么问题”，
+
+而不是回答“问题的答案是什么”。
+
+
+
+---
+
+# Transition（阶段转换）
+
+
+当 Definition 满足 Completion Criteria 后：
+
+进入：
+
+Argument Building。
+
+
+下一阶段调用：
+
+workflows/argument-building.md
+
+
+阶段转换是否执行：
+
+遵循：
+
+rules/stage-transition.md
+
+
+AI 不应：
+
+在 Definition 阶段提前进入：
+
+- 观点构建；
+- 论证优化；
+- 辩论挑战。
+
+---
 
 # Restrictions（限制）
 
